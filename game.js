@@ -3,15 +3,32 @@ var context = c.getContext("2d");
 var b = document.getElementById("background");
 var context_back = b.getContext("2d");
 
-var numOfTiles = 2;
-var myScore=0;
+var numOfTiles = 4;
+var myScore = 0;
+var eachState = [false,false,false,false];
+var myTiles = [];
 startGame();
 window.setInterval(upDate,10);
 function startGame(){
-    paintWindow();
-    myTiles = [];
-    myTiles[0] = new Block(0);
-    myTiles[1] = new Block(1);
+    paintWindow();  
+    window.setInterval(geneBlock,1000);
+
+}
+function geneBlock(){
+    var myRand = Math.floor(Math.random()*numOfTiles);
+    var i;
+    var flag = true;
+    for( i = 0; i < numOfTiles; ++i){
+        if(!eachState[i]){
+            flag = false;
+        }
+    }
+    if(flag)return;//if mytiles array didn't have false element, then return
+
+    while(eachState[myRand])
+        myRand = Math.floor(Math.random()*numOfTiles);
+    myTiles[myRand] = new Block(myRand);
+     
 }
 function paintWindow(){
     my_gradient = context_back.createLinearGradient(0,0,0,600);
@@ -47,7 +64,9 @@ function paintWindow(){
 }
 
 function Block(index){
-     
+    if(!eachState[index])
+        eachState[index] = true;
+
     this.index = index;
     this.appearPos = Math.floor(Math.random()*4);
    
@@ -74,11 +93,14 @@ function Block(index){
     }
     context.fillStyle = this.color;
     context.fillRect(this.x,this.y,this.width,this.height);
-    this.interval = setInterval(move,10,this.index);
+    //this.interval = setInterval(move,10,this.index);
     this.live = true;
-
+    //this.live = false;
     window.addEventListener('keydown',function(e){
         myTiles[index].keyCode = e.keyCode;
+    });
+    window.addEventListener('keyup',function(e){
+        myTiles[index].keyCode = false;
     });
 }
 function move(index){
@@ -86,20 +108,26 @@ function move(index){
         myTiles[index].y += 1;
         context.fillStyle = "black";
         context.fillRect(myTiles[index].x,myTiles[index].y,70,120);   
-        context.clearRect(myTiles[index].x,myTiles[index].y-2,70,2);
+        context.clearRect(myTiles[index].x,myTiles[index].y-1,70,1);
     }
-    //context.fillStyle = my_gradient;
-    //context.fillRect(myTiles[index].x,myTiles[index].y-2,70,2);
 }
 function afterRight(index){
     context.clearRect(myTiles[index].x,myTiles[index].y,70,120);
     myTiles[index].live = false;
+    eachState[index] = false;
 }
 function upDate(){//check keyCode whether correct
     var i;
- 
     for(i = 0; i < numOfTiles; ++i){
-        if( myTiles[i].live ){
+        if(myTiles[i].live){
+            myTiles[i].y += 1;
+            context.fillStyle = "black";
+            context.fillRect(myTiles[i].x,myTiles[i].y,70,120);   
+            context.clearRect(myTiles[i].x,myTiles[i].y-1,70,1);
+        }
+    }
+    for(i = 0; i < numOfTiles; ++i){
+        if( eachState[i] ){
             if(myTiles[i].y < 470 && myTiles[i].y >350){
                 switch(myTiles[i].keyCode){
                     case 65: //A
@@ -118,18 +146,16 @@ function upDate(){//check keyCode whether correct
                     if(myTiles[i].x == 228)
                         afterRight(i);
                     break;       
-
                 }
             }
             if(myTiles[i].y > 470){
                 context.clearRect(myTiles[i].x,myTiles[i].y,70,120);
                 myTiles[i].live = false;
+                eachState[i] = false;
             }
         }
         else{//not alive
-
         }
     }
-
 }
  
