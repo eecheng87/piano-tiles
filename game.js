@@ -4,27 +4,40 @@ var b = document.getElementById("background");
 var context_back = b.getContext("2d");
 var a = document.getElementById("score_bar");
 var context_score = a.getContext("2d");
-
+ 
 
 var numOfTiles = 5;
 var myScore = 0;
 var eachState = [false,false,false,false,false];
 var myTiles = [];
-startGame();
-window.setInterval(upDate,5);
-function startGame(){
-    paintWindow(); 
-    paintScoreBar(); 
-    window.setInterval(geneBlock,600);
 
-}
+var intervalTmp;
+var geneTmp;
+
+paintWindow(); 
+paintScoreBar();
+document.getElementById('btn').addEventListener('click',function(e){
+    content = document.getElementById('start_btn');
+    if(content.innerHTML == "START" || content.innerHTML == "GG"){
+        intervalTmp = window.setInterval(upDate,5);
+        geneTmp = window.setInterval(geneBlock,600);
+        document.getElementById('music').play();
+        content.innerHTML = "PAUSE";
+    }
+    else{
+        document.getElementById('music').pause();
+        window.clearInterval(intervalTmp);
+        window.clearInterval(geneTmp);
+        content.innerHTML = "START";
+    }
+});
 function paintScoreBar(){
     score_gradient = context_score.createLinearGradient(0,0,0,80);
-    score_gradient.addColorStop(0,"rgba(74,171,254,0.2)");
-    score_gradient.addColorStop(0.5,"rgba(74,84,254,0.2)");
-    score_gradient.addColorStop(1,"rgba(116,74,254,0.2)");
+    score_gradient.addColorStop(0,"rgba(74,171,254,0)");
+    score_gradient.addColorStop(0.5,"rgba(74,84,254,0)");
+    score_gradient.addColorStop(1,"rgba(116,74,254,0)");
     context_score.fillStyle = score_gradient;
-    context_score.fillRect(0,0,300,70);
+    context_score.fillRect(0,0,300,70);    
 }
 function geneBlock(){
     var myRand = Math.floor(Math.random()*numOfTiles);
@@ -74,7 +87,6 @@ function paintWindow(){
     context_back.strokeStyle = "white";
     context_back.stroke();
 }
-
 function Block(index){
     if(!eachState[index])
         eachState[index] = true;
@@ -105,9 +117,8 @@ function Block(index){
     }
     context.fillStyle = this.color;
     context.fillRect(this.x,this.y,this.width,this.height);
-    //this.interval = setInterval(move,10,this.index);
     this.live = true;
-    //this.live = false;
+
     window.addEventListener('keydown',function(e){
         myTiles[index].keyCode = e.keyCode;
     });
@@ -124,14 +135,25 @@ function move(index){
     }
 }
 function afterRight(index){
+    myScore++;
     context.clearRect(myTiles[index].x,myTiles[index].y,70,120);
     myTiles[index].live = false;
     eachState[index] = false;
 }
 function upDate(){//check keyCode whether correct
     var i;
+
+    var textWidth = context_score.measureText(myScore.toString()).width;
+    context_score.clearRect(0,0,300,70);
+    context_score.font = "30px Verdana";
+    context_score.textAlign = 'center';
+    paintScoreBar();
+    context_score.fillStyle = "rgba(88,38,255,0.8)";
+    context_score.fillText(myScore.toString(),(a.width / 2) - (textWidth / 2)+9,50);
+    
+
     for(i = 0; i < numOfTiles; ++i){
-        if(myTiles[i].live){
+        if(eachState[i]){
             myTiles[i].y += 1;
             context.fillStyle = "black";
             context.fillRect(myTiles[i].x,myTiles[i].y,70,120);   
@@ -162,11 +184,18 @@ function upDate(){//check keyCode whether correct
             }
             if(myTiles[i].y > 470){
                 context.clearRect(myTiles[i].x,myTiles[i].y,70,120);
+                context.fillStyle = "rgba(245,13,13,0.8)";
+                context.fillRect(myTiles[i].x,myTiles[i].y,70,120);
                 myTiles[i].live = false;
                 eachState[i] = false;
+                document.getElementById('music').pause();
+                window.clearInterval(intervalTmp);
+                window.clearInterval(geneTmp);
+                content.innerHTML = "GG";
             }
         }
         else{//not alive
+
         }
     }
 }
