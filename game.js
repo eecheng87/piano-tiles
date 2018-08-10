@@ -2,17 +2,29 @@ var c = document.getElementById("piano");
 var context = c.getContext("2d");
 var b = document.getElementById("background");
 var context_back = b.getContext("2d");
+var a = document.getElementById("score_bar");
+var context_score = a.getContext("2d");
 
-var numOfTiles = 4;
+
+var numOfTiles = 5;
 var myScore = 0;
-var eachState = [false,false,false,false];
+var eachState = [false,false,false,false,false];
 var myTiles = [];
 startGame();
-window.setInterval(upDate,10);
+window.setInterval(upDate,5);
 function startGame(){
-    paintWindow();  
-    window.setInterval(geneBlock,1000);
+    paintWindow(); 
+    paintScoreBar(); 
+    window.setInterval(geneBlock,600);
 
+}
+function paintScoreBar(){
+    score_gradient = context_score.createLinearGradient(0,0,0,80);
+    score_gradient.addColorStop(0,"rgba(74,171,254,0.2)");
+    score_gradient.addColorStop(0.5,"rgba(74,84,254,0.2)");
+    score_gradient.addColorStop(1,"rgba(116,74,254,0.2)");
+    context_score.fillStyle = score_gradient;
+    context_score.fillRect(0,0,300,70);
 }
 function geneBlock(){
     var myRand = Math.floor(Math.random()*numOfTiles);
@@ -76,19 +88,19 @@ function Block(index){
     switch(this.appearPos){
         case 0:
             this.x = 0;
-            this.y = 0;
+            this.y = -120;
             break;
         case 1:
             this.x = 75;
-            this.y = 0;
+            this.y = -120;
             break;
         case 2:
             this.x = 152;
-            this.y = 0;
+            this.y = -120;
             break;
         case 3:
             this.x = 228;
-            this.y = 0;
+            this.y = -120;
             break;
     }
     context.fillStyle = this.color;
@@ -123,7 +135,7 @@ function upDate(){//check keyCode whether correct
             myTiles[i].y += 1;
             context.fillStyle = "black";
             context.fillRect(myTiles[i].x,myTiles[i].y,70,120);   
-            context.clearRect(myTiles[i].x,myTiles[i].y-1,70,1);
+            context.clearRect(myTiles[i].x,myTiles[i].y-2,70,2);
         }
     }
     for(i = 0; i < numOfTiles; ++i){
